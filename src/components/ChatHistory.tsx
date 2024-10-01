@@ -15,6 +15,7 @@ interface ChatHistoryProps {
   setActiveChat: (chat: Chat) => void;
   handleNewChat: () => void;
   setShowLeftSidebar: (show: boolean) => void;
+  isMobile: boolean;
 }
 
 export default function ChatHistory({
@@ -23,14 +24,25 @@ export default function ChatHistory({
   setActiveChat,
   handleNewChat,
   setShowLeftSidebar,
+  isMobile,
 }: ChatHistoryProps) {
+  const sidebarVariants = {
+    open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+    closed: {
+      x: "-100%",
+      transition: { type: "spring", stiffness: 300, damping: 30 },
+    },
+  };
+
   return (
     <motion.aside
-      initial={{ x: -300 }}
-      animate={{ x: 0 }}
-      exit={{ x: -300 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="w-80 bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col h-full rounded-lg shadow-lg"
+      initial="closed"
+      animate="open"
+      exit="closed"
+      variants={sidebarVariants}
+      className={`${
+        isMobile ? "fixed inset-y-0 left-0 z-50" : "relative"
+      } w-80 bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col h-full rounded-lg shadow-lg`}
     >
       <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-white rounded-t-lg">
         <h2 className="text-2xl font-semibold">Conversations</h2>
@@ -57,7 +69,10 @@ export default function ChatHistory({
             key={chat.id}
             chat={chat}
             isActive={activeChat.id === chat.id}
-            onClick={() => setActiveChat(chat)}
+            onClick={() => {
+              setActiveChat(chat);
+              if (isMobile) setShowLeftSidebar(false);
+            }}
           />
         ))}
       </ScrollArea>

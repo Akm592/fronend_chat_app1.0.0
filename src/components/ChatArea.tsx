@@ -16,6 +16,7 @@ interface ChatAreaProps {
   setShowLeftSidebar: (show: boolean) => void;
   showRightSidebar: boolean;
   setShowRightSidebar: (show: boolean) => void;
+  isMobile: boolean;
 }
 
 export default function ChatArea({
@@ -27,6 +28,7 @@ export default function ChatArea({
   setShowLeftSidebar,
   showRightSidebar,
   setShowRightSidebar,
+  isMobile,
 }: ChatAreaProps) {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -53,6 +55,7 @@ export default function ChatArea({
         setShowLeftSidebar={setShowLeftSidebar}
         showRightSidebar={showRightSidebar}
         setShowRightSidebar={setShowRightSidebar}
+        isMobile={isMobile}
       />
       <div className="flex-1 flex overflow-hidden">
         <div className="flex-1 flex flex-col">
@@ -79,28 +82,29 @@ interface ChatHeaderProps {
   setShowLeftSidebar: (show: boolean) => void;
   showRightSidebar: boolean;
   setShowRightSidebar: (show: boolean) => void;
+isMobile: boolean;
 }
 
 const ChatHeader = ({
-  activeChat,
-  showLeftSidebar,
-  setShowLeftSidebar,
-  showRightSidebar,
-  setShowRightSidebar,
+activeChat,
+showLeftSidebar,
+setShowLeftSidebar,
+showRightSidebar,
+setShowRightSidebar,
+isMobile,
 }: ChatHeaderProps) => (
   <header className="bg-white border-b border-gray-200 p-4 flex justify-between items-center shadow-sm">
     <div className="flex items-center space-x-4">
-      {!showLeftSidebar && (
+      {isMobile && (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setShowLeftSidebar(true)}
+          onClick={() => setShowLeftSidebar(!showLeftSidebar)}
           className="text-gray-600 hover:text-gray-900"
         >
           <List size={20} />
         </Button>
       )}
-
       <div>
         <h2 className="text-lg font-semibold text-gray-900">
           {activeChat.name}
@@ -126,6 +130,7 @@ const ChatHeader = ({
     </div>
   </header>
 );
+
 interface Message {
   id: number;
   text: string;
@@ -190,7 +195,9 @@ const ChatInput = ({
         className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#002F6C]"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={(e) => e.key === "Enter" && !isLoading && handleSendMessage()}
+        onKeyPress={(e) =>
+          e.key === "Enter" && !isLoading && handleSendMessage()
+        }
       />
       <Button variant="ghost" className="text-gray-400 hover:text-[#002F6C]">
         <Mic size={20} />

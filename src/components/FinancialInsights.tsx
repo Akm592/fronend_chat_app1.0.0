@@ -4,18 +4,30 @@ import { Button } from "./ui/button";
 
 interface FinancialInsightsProps {
   setShowRightSidebar: (show: boolean) => void;
+  isMobile: boolean;
 }
 
 export default function FinancialInsights({
   setShowRightSidebar,
+  isMobile,
 }: FinancialInsightsProps) {
+  const sidebarVariants = {
+    open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
+    closed: {
+      x: "100%",
+      transition: { type: "spring", stiffness: 300, damping: 30 },
+    },
+  };
+
   return (
     <motion.aside
-      initial={{ x: 300 }}
-      animate={{ x: 0 }}
-      exit={{ x: 300 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto"
+      initial="closed"
+      animate="open"
+      exit="closed"
+      variants={sidebarVariants}
+      className={`${
+        isMobile ? "fixed inset-y-0 right-0 z-50" : "relative"
+      } w-80 bg-white border-l border-gray-200 p-4 overflow-y-auto`}
     >
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Financial Insights</h3>

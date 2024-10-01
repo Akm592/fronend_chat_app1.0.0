@@ -1,5 +1,5 @@
 
-import { FinancialAssistant } from "./components/financial-assistant";
+import  { FinancialAssistant }  from "./components/FinancialAssistent";
 
 
 function App() {
