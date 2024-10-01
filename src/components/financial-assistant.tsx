@@ -15,7 +15,7 @@ export function FinancialAssistant() {
     activeChat,
     setActiveChat,
     chatHistory,
-    setChatHistory,
+    // setChatHistory,
     handleSendMessage,
     handleNewChat,
   } = useChatLogic();
