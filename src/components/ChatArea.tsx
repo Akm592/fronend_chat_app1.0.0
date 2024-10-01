@@ -1,8 +1,24 @@
-import { useState, useEffect, useRef } from "react";
-import { Bell, List, Paperclip, Mic, Send, History, X } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { ScrollArea } from "../components/ui/scroll-area";
+import React, { useState, useRef } from "react";
+import { Send, Settings, LogOut, ChevronDown, Paperclip } from "lucide-react";
+import { ScrollArea } from "./ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
+import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
 
+// Props for ChatArea component
 interface ChatAreaProps {
   activeChat: {
     id: number;
@@ -12,247 +28,213 @@ interface ChatAreaProps {
   message: string;
   setMessage: (message: string) => void;
   handleSendMessage: () => void;
-  showLeftSidebar: boolean;
-  setShowLeftSidebar: (show: boolean) => void;
-  showRightSidebar: boolean;
-  setShowRightSidebar: (show: boolean) => void;
-  isMobile: boolean;
 }
 
-export default function ChatArea({
-  activeChat,
-  message,
-  setMessage,
-  handleSendMessage,
-  showLeftSidebar,
-  setShowLeftSidebar,
-  showRightSidebar,
-  setShowRightSidebar,
-  isMobile,
-}: ChatAreaProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  const handleSendMessageWithLoading = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      handleSendMessage();
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
-    }
-  }, [activeChat.messages]);
-
-  return (
-    <main className="flex-1 flex flex-col bg-gray-50">
-      <ChatHeader
-        activeChat={activeChat}
-        showLeftSidebar={showLeftSidebar}
-        setShowLeftSidebar={setShowLeftSidebar}
-        showRightSidebar={showRightSidebar}
-        setShowRightSidebar={setShowRightSidebar}
-        isMobile={isMobile}
-      />
-      <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 flex flex-col">
-          <ChatMessages
-            messages={activeChat.messages}
-            scrollAreaRef={scrollAreaRef}
-          />
-          <ChatInput
-            message={message}
-            setMessage={setMessage}
-            handleSendMessage={handleSendMessageWithLoading}
-            isLoading={isLoading}
-          />
-        </div>
-      </div>
-    </main>
-  );
-}
-interface ChatHeaderProps {
-  activeChat: {
-    name: string;
-  };
-  showLeftSidebar: boolean;
-  setShowLeftSidebar: (show: boolean) => void;
-  showRightSidebar: boolean;
-  setShowRightSidebar: (show: boolean) => void;
-  isMobile: boolean;
-}
-
-const ChatHeader = ({
-  activeChat,
-  showLeftSidebar,
-  setShowLeftSidebar,
-  showRightSidebar,
-  setShowRightSidebar,
-  isMobile,
-}: ChatHeaderProps) => (
-  <header className="bg-white border-b border-gray-200 p-4 flex justify-between items-center shadow-sm">
-    <div className="flex items-center space-x-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setShowLeftSidebar(!showLeftSidebar)}
-        className="text-gray-600 hover:text-gray-900"
-      >
-        {isMobile ? <List size={20} /> : <History size={20} />}
-      </Button>
-      <div>
-        <h2 className="text-lg font-semibold text-gray-900">
-          {activeChat.name}
-        </h2>
-      </div>
-    </div>
-    <div className="flex items-center space-x-2">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="text-gray-600 hover:text-gray-900"
-        onClick={() => setShowRightSidebar(!showRightSidebar)}
-      >
-        <Bell size={20} />
-      </Button>
-    </div>
-  </header>
-);
+// Message interface
 interface Message {
   id: number;
   text: string;
   sender: string;
 }
 
-const ChatMessages = ({
-  messages,
-  scrollAreaRef,
-}: {
-  messages: Message[];
-  scrollAreaRef: React.RefObject<HTMLDivElement>;
-}) => (
-  <ScrollArea
-    className="flex-1 p-2 sm:p-4 md:p-6 space-y-4 sm:space-y-6"
-    ref={scrollAreaRef}
-  >
-    <div className="space-y-4 sm:space-y-6">
-      {messages.map((msg) => (
-        <ChatMessage key={msg.id} message={msg} />
-      ))}
-    </div>
-  </ScrollArea>
-);
-
+// Component to render individual chat messages
 const ChatMessage = ({ message }: { message: Message }) => (
   <div
     className={`flex ${
       message.sender === "user" ? "justify-end" : "justify-start"
-    }`}
+    } mb-4`}
   >
     <div
-      className={`rounded-2xl p-3 sm:p-4 mb-2 max-w-[80%] sm:max-w-md ${
-        message.sender === "user"
-          ? "bg-[#002F6C] text-white"
-          : "bg-white shadow-md"
+      className={`rounded-xl p-3 max-w-[80%] ${
+        message.sender === "user" ? "bg-[#2A2A2A]" : "bg-[#3A3A3A]"
       }`}
     >
-      <p className="text-sm sm:text-base">{message.text}</p>
+      <p className="text-white">{message.text}</p>
     </div>
   </div>
 );
 
-interface ChatInputProps {
-  message: string;
-  setMessage: (message: string) => void;
-  handleSendMessage: () => void;
-  isLoading: boolean;
-}
-
-const ChatInput = ({
+// Main ChatArea component
+export default function ChatArea({
+  activeChat,
   message,
   setMessage,
   handleSendMessage,
-  isLoading,
-}: ChatInputProps) => {
-  const [file, setFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+}: ChatAreaProps) {
+  const [isLoading, setIsLoading] = useState(false); // Loading state for sending message
+  const [selectedFile, setSelectedFile] = useState<File | null>(null); // File attachment state
+  const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Selected AI model state
+  const [tempChatEnabled, setTempChatEnabled] = useState(false); // Toggle temporary chat
+  const scrollAreaRef = useRef<HTMLDivElement>(null); // Ref for scroll area
+  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setFile(event.target.files[0]);
+  // Handles sending message with loading state
+  const handleSendMessageWithLoading = () => {
+    if (message.trim() !== "" || selectedFile) {
+      setIsLoading(true);
+      setTimeout(() => {
+        handleSendMessage();
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
-  const handleRemoveFile = () => {
-    setFile(null);
+  // Handles file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  // Triggers file upload input
+  const handleFileUploadClick = () => {
     if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+      fileInputRef.current.click();
     }
   };
 
   return (
-    <div className="bg-white border-t border-gray-200 p-2 sm:p-4">
-      <div className="flex flex-col space-y-2">
-        {file && (
-          <div className="flex items-center justify-between bg-gray-100 p-2 rounded-md">
-            <span className="text-sm truncate">{file.name}</span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRemoveFile}
-              className="text-gray-500 hover:text-red-500"
-            >
-              <X size={16} />
-            </Button>
-          </div>
-        )}
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            className="text-gray-400 hover:text-[#002F6C]"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Paperclip size={20} />
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            className="hidden"
-            title="Attach a file"
-          />
+    <div className="flex-1 flex flex-col bg-[#212121]">
+      {/* Header with dropdown menus */}
+      <header className="bg-[#212121] p-4 flex justify-between items-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="text-xl font-semibold text-gray-400 flex ml-10">
+              {selectedModel}
+              <ChevronDown className="w-6 h-6 ml-1" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64 bg-[#2A2A2A] text-white border-[#3A3A3A] rounded-xl">
+            <DropdownMenuItem onClick={() => setSelectedModel("ChatGPT Plus")}>
+              <div className="flex items-center justify-between w-full">
+                <div>
+                  <div className="font-semibold">ChatGPT Plus</div>
+                  <div className="text-sm text-gray-400">
+                    Our smartest model & more
+                  </div>
+                </div>
+                <Button variant="outline" size="sm">
+                  Upgrade
+                </Button>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSelectedModel("ChatGPT")}>
+              <div className="flex items-center justify-between w-full">
+                <div>
+                  <div className="font-semibold">ChatGPT</div>
+                  <div className="text-sm text-gray-400">
+                    Great for everyday tasks
+                  </div>
+                </div>
+                <div className="w-4 h-4 rounded-full bg-green-500"></div>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <div className="flex items-center justify-between w-full">
+                <div className="font-semibold">Temporary chat</div>
+                <Switch
+                  checked={tempChatEnabled}
+                  onCheckedChange={setTempChatEnabled}
+                />
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-8 h-8 rounded-full bg-[#3A3A3A] flex items-center justify-center text-white cursor-pointer">
+              A
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56 bg-[#2A2A2A] text-white border-[#3A3A3A] rounded-xl">
+            <DropdownMenuLabel>My GPTs</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Customize ChatGPT</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Upgrade Plan</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+
+      {/* Chat scroll area */}
+      <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+        {activeChat.messages.map((msg) => (
+          <ChatMessage key={msg.id} message={msg} />
+        ))}
+      </ScrollArea>
+
+      {/* Footer with input and send button */}
+      <footer className="bg-[#212121] p-4">
+        <div className="max-w-3xl mx-auto relative">
           <input
             type="text"
-            placeholder="Type your message..."
-            className="flex-1 border border-gray-300 rounded-full px-3 py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#002F6C]"
+            placeholder="Message ChatGPT"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={(e) =>
-              e.key === "Enter" && !isLoading && handleSendMessage()
+              e.key === "Enter" && handleSendMessageWithLoading()
             }
+            className="w-full bg-[#2A2A2A] text-white rounded-full py-3 px-4 pr-20 pl-10 focus:outline-none"
           />
-          <Button
-            variant="ghost"
-            className="text-gray-400 hover:text-[#002F6C] hidden sm:inline-flex"
-          >
-            <Mic size={20} />
-          </Button>
-          <Button
-            onClick={handleSendMessage}
-            className="bg-[#2C7A7B] text-white rounded-full p-2 sm:p-3 hover:bg-[#236c6d] transition-colors duration-200"
+          <label htmlFor="file-upload" className="sr-only">
+            Upload File
+          </label>
+          <input
+            type="file"
+            id="file-upload"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          {/* Tooltip for file upload */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute p-1 left-3 top-1/2 transform -translate-y-1/2"
+                  onClick={handleFileUploadClick}
+                >
+                  <Paperclip className="w-5 h-5 text-gray-400 mr-2" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Attach file</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          {/* Send button with loading animation */}
+          <button
+            onClick={handleSendMessageWithLoading}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2"
             disabled={isLoading}
           >
             {isLoading ? (
-              <div className="w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-white border-solid rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin"></div>
             ) : (
-              <Send size={16} className="sm:w-5 sm:h-5" />
+              <Send className="w-5 h-5 text-white" />
             )}
-          </Button>
+          </button>
         </div>
-      </div>
+        <p className="text-center text-sm mt-2 text-gray-400">
+          Assistant can make mistakes. Check important info.
+        </p>
+      </footer>
     </div>
   );
-};
+}

@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
-import TopNavigation from "./TopNavigation";
 import ChatHistory from "./ChatHistory";
 import ChatArea from "./ChatArea";
-import FinancialInsights from "./FinancialInsights";
 import { useChatLogic } from "../hooks/useChatLogic";
 
 export function FinancialAssistant() {
-  const [showLeftSidebar, setShowLeftSidebar] = useState(false);
-  const [showRightSidebar, setShowRightSidebar] = useState(false);
+  // State to track if the screen is mobile-sized
   const [isMobile, setIsMobile] = useState(false);
+
+  // Destructure chat-related state and functions from custom hook
   const {
     message,
     setMessage,
@@ -20,51 +19,43 @@ export function FinancialAssistant() {
     handleNewChat,
   } = useChatLogic();
 
+  // Effect to handle screen resizing and update mobile state
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 768); // Check if the screen width is less than 768px
     };
     handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize); // Listen to window resize events
+    return () => window.removeEventListener("resize", handleResize); // Clean up event listener
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F5F5] text-[#4A4A4A] w-screen">
-      <TopNavigation />
-      <div className="flex-1 flex overflow-hidden">
-        <AnimatePresence>
-          {showLeftSidebar && (
-            <ChatHistory
-              chatHistory={chatHistory}
-              activeChat={activeChat}
-              setActiveChat={setActiveChat}
-              handleNewChat={handleNewChat}
-              setShowLeftSidebar={setShowLeftSidebar}
-              isMobile={isMobile}
-            />
-          )}
-        </AnimatePresence>
-        <ChatArea
-          activeChat={activeChat}
-          message={message}
-          setMessage={setMessage}
-          handleSendMessage={handleSendMessage}
-          showLeftSidebar={showLeftSidebar}
-          setShowLeftSidebar={setShowLeftSidebar}
-          showRightSidebar={showRightSidebar}
-          setShowRightSidebar={setShowRightSidebar}
-          isMobile={isMobile}
-        />
-        <AnimatePresence>
-          {showRightSidebar && (
-            <FinancialInsights
-              setShowRightSidebar={setShowRightSidebar}
-              isMobile={isMobile}
-            />
-          )}
-        </AnimatePresence>
-      </div>
+    <div className="flex h-screen bg-[#171717] text-white">
+      <AnimatePresence>
+        {/* Render chat history with current chat state */}
+        {!isMobile && (
+          <ChatHistory
+            chatHistory={chatHistory}
+            activeChat={activeChat}
+            setActiveChat={setActiveChat}
+            handleNewChat={handleNewChat}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Render chat area with message input and send functionality */}
+      <ChatArea
+        activeChat={activeChat}
+        message={message}
+        setMessage={setMessage}
+        handleSendMessage={handleSendMessage}
+      />
+
+      {isMobile && (
+        <div className="mobile-warning">
+          <p>Mobile view is active</p>
+        </div>
+      )}
     </div>
   );
 }

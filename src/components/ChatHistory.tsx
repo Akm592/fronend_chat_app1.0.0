@@ -1,8 +1,25 @@
-import { motion } from "framer-motion";
-import { X, PlusCircle, MessageCircle } from "lucide-react";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  MessageCircle,
+  ArrowBigUpDash,
+  MoreHorizontal,
+  Share2,
+  Pencil,
+  SquarePen,
+  Archive,
+  Trash2,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
+// Chat interface defining the structure of chat data
 interface Chat {
   id: number;
   name: string;
@@ -10,108 +27,162 @@ interface Chat {
 }
 
 interface ChatHistoryProps {
-  chatHistory: Chat[];
-  activeChat: Chat;
-  setActiveChat: (chat: Chat) => void;
+  chatHistory: {
+    id: number;
+    name: string;
+    messages: { id: number; text: string; sender: string }[];
+  }[];
+  activeChat: {
+    id: number;
+    name: string;
+    messages: { id: number; text: string; sender: string }[];
+  };
+  setActiveChat: React.Dispatch<
+    React.SetStateAction<{
+      id: number;
+      name: string;
+      messages: { id: number; text: string; sender: string }[];
+    }>
+  >;
   handleNewChat: () => void;
-  setShowLeftSidebar: (show: boolean) => void;
-  isMobile: boolean;
 }
 
+// Main ChatHistory component
 export default function ChatHistory({
   chatHistory,
   activeChat,
   setActiveChat,
   handleNewChat,
-  setShowLeftSidebar,
-  isMobile,
 }: ChatHistoryProps) {
-  const sidebarVariants = {
-    open: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
-    closed: {
-      x: "-100%",
-      transition: { type: "spring", stiffness: 300, damping: 30 },
-    },
-  };
+  const [isOpen, setIsOpen] = useState(true);
+
+  // Toggles sidebar visibility
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
-    <motion.aside
-      initial="closed"
-      animate="open"
-      exit="closed"
-      variants={sidebarVariants}
-      className={`${
-        isMobile ? "fixed inset-y-0 left-0 z-50" : "relative"
-      } w-80 bg-gradient-to-b from-gray-50 to-white border-r border-gray-200 flex flex-col h-full rounded-lg shadow-lg`}
-    >
-      <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-white rounded-t-lg">
-        <h2 className="text-2xl font-semibold">Conversations</h2>
+    <div className="flex h-full">
+      <div className="relative">
+        {/* Button to toggle the chat sidebar */}
         <Button
           variant="ghost"
-          size="sm"
-          onClick={() => setShowLeftSidebar(false)}
-          className="hover:bg-gray-100 rounded-full p-2 transition-colors"
+          size="icon"
+          className="absolute top-4 left-4 z-20 text-white hover:bg-[#2A2A2A]"
+          onClick={toggleSidebar}
         >
-          <X size={20} />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-6 h-6"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
         </Button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.aside
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "256px", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="bg-[#171717] flex flex-col h-full overflow-hidden"
+            >
+              {/* Button to create a new chat */}
+              <div className="p-4 flex items-center justify-between">
+                <Button
+                  variant="default"
+                  onClick={handleNewChat}
+                  className="ml-44 text-white hover:bg-[#2A2A2A]"
+                >
+                  <SquarePen size={20} />
+                </Button>
+              </div>
+              {/* Scrollable area showing chat history */}
+              <ScrollArea className="flex-grow px-4">
+                <div className="space-y-2">
+                  {chatHistory.map((chat) => (
+                    <ChatHistoryItem
+                      key={chat.id}
+                      chat={chat}
+                      isActive={activeChat.id === chat.id}
+                      onClick={() => setActiveChat(chat)}
+                    />
+                  ))}
+                </div>
+              </ScrollArea>
+              {/* Upgrade plan section at the bottom */}
+              <div className="mt-auto p-4">
+                <a
+                  href="#"
+                  className="flex items-center p-2 rounded text-white hover:bg-[#2A2A2A]"
+                >
+                  <ArrowBigUpDash size={20} className="mr-2" />
+                  Upgrade plan
+                </a>
+              </div>
+            </motion.aside>
+          )}
+        </AnimatePresence>
       </div>
-      <Button
-        variant="default"
-        className="mx-4 mt-6 mb-4 py-3 text-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
-        onClick={handleNewChat}
-      >
-        <PlusCircle size={20} className="mr-2" />
-        New Conversation
-      </Button>
-      <ScrollArea className="flex-1 px-2">
-        {chatHistory.map((chat) => (
-          <ChatHistoryItem
-            key={chat.id}
-            chat={chat}
-            isActive={activeChat.id === chat.id}
-            onClick={() => {
-              setActiveChat(chat);
-              if (isMobile) setShowLeftSidebar(false);
-            }}
-          />
-        ))}
-      </ScrollArea>
-    </motion.aside>
+    </div>
   );
 }
 
+// Component to render each chat item in the chat history
 interface ChatHistoryItemProps {
   chat: Chat;
   isActive: boolean;
   onClick: () => void;
 }
 
+// Chat item component with options to share, rename, archive, or delete
 const ChatHistoryItem = ({ chat, isActive, onClick }: ChatHistoryItemProps) => (
-  <Button
-    variant={isActive ? "secondary" : "ghost"}
-    className={`w-full justify-start py-4 px-4 mb-2 rounded-xl transition-all duration-200 ${
-      isActive ? "bg-blue-100 hover:bg-blue-200 shadow-md" : "hover:bg-gray-100"
-    }`}
-    onClick={onClick}
-  >
-    <div className="flex items-center w-full">
-      <MessageCircle
-        size={24}
-        className={`mr-4 ${isActive ? "text-blue-600" : "text-gray-500"}`}
-      />
-      <div className="text-left flex-grow">
-        <h3
-          className={`font-semibold text-lg ${
-            isActive ? "text-blue-700" : "text-gray-700"
-          }`}
-        >
-          {chat.name}
-        </h3>
-        {/* <p className="text-sm text-gray-500 truncate mt-1">
-          {chat.messages[chat.messages.length - 1]?.text ||
-            "Start a new conversation"}
-        </p> */}
-      </div>
-    </div>
-  </Button>
+  <div className="flex items-center justify-between rounded-xl">
+    {/* Button to select a chat from history */}
+    <Button
+      variant={isActive ? "secondary" : "ghost"}
+      className={`flex-grow justify-start py-2 px-2 round text-white ${
+        isActive ? "bg-[#3A3A3A]" : "hover:bg-[#2A2A2A]"
+      }`}
+      onClick={onClick}
+    >
+      <MessageCircle size={20} className="mr-2" />
+      <span className="truncate">{chat.name}</span>
+    </Button>
+    {/* Dropdown menu for each chat item with additional actions */}
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="px-0 text-white hover:bg-[#2A2A2A]">
+          <MoreHorizontal size={20} />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="end"
+        className="w-40 bg-[#2A2A2A] text-white border-[#3A3A3A] rounded-xl"
+      >
+        {/* Options like Share, Rename, Archive, and Delete */}
+        <DropdownMenuItem className="hover:bg-[#3A3A3A]">
+          <Share2 className="mr-2 h-4 w-4" />
+          <span>Share</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="hover:bg-[#3A3A3A]">
+          <Pencil className="mr-2 h-4 w-4" />
+          <span>Rename</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="hover:bg-[#3A3A3A]">
+          <Archive className="mr-2 h-4 w-4" />
+          <span>Archive</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="text-red-500 hover:bg-[#3A3A3A] hover:text-red-500">
+          <Trash2 className="mr-2 h-4 w-4" />
+          <span>Delete</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
 );
