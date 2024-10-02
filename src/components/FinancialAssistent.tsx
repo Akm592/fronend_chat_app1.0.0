@@ -1,4 +1,3 @@
-
 import { AnimatePresence } from "framer-motion";
 import ChatHistory from "./ChatHistory";
 import ChatArea from "./ChatArea";
@@ -20,14 +19,13 @@ export function FinancialAssistant() {
     <div className="flex h-screen bg-[#171717] text-white">
       <AnimatePresence>
         {/* Render chat history with current chat state */}
-     
-          <ChatHistory
-            chatHistory={chatHistory}
-            activeChat={activeChat}
-            setActiveChat={setActiveChat}
-            handleNewChat={handleNewChat}
-          />
-    
+
+        <ChatHistory
+          chatHistory={chatHistory}
+          activeChat={activeChat}
+          setActiveChat={setActiveChat}
+          handleNewChat={handleNewChat}
+        />
       </AnimatePresence>
 
       {/* Render chat area with message input and send functionality */}
@@ -37,8 +35,6 @@ export function FinancialAssistant() {
         setMessage={setMessage}
         handleSendMessage={handleSendMessage}
       />
-
-     
     </div>
   );
 }
