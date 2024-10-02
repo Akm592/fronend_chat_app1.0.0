@@ -94,7 +94,7 @@ export default function ChatArea({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#212121]">
+    <div className="flex-1 h-full flex flex-col bg-[#212121]">
       {/* Header with dropdown menus */}
       <header className="bg-[#212121] p-4 flex justify-between items-center">
         <DropdownMenu>

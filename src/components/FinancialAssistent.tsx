@@ -16,7 +16,7 @@ export function FinancialAssistant() {
   } = useChatLogic();
 
   return (
-    <div className="flex h-screen bg-[#171717] text-white">
+    <div className="flex h-screen bg-[#171717] text-white overflow-hidden">
       <AnimatePresence>
         {/* Render chat history with current chat state */}
 
@@ -29,12 +29,14 @@ export function FinancialAssistant() {
       </AnimatePresence>
 
       {/* Render chat area with message input and send functionality */}
+      <div className="h-screen w-full">
       <ChatArea
         activeChat={activeChat}
         message={message}
         setMessage={setMessage}
         handleSendMessage={handleSendMessage}
       />
+      </div>  
     </div>
   );
 }

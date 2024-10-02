@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageCircle,
@@ -27,23 +27,9 @@ interface Chat {
 }
 
 interface ChatHistoryProps {
-  chatHistory: {
-    id: number;
-    name: string;
-    messages: { id: number; text: string; sender: string }[];
-  }[];
-  activeChat: {
-    id: number;
-    name: string;
-    messages: { id: number; text: string; sender: string }[];
-  };
-  setActiveChat: React.Dispatch<
-    React.SetStateAction<{
-      id: number;
-      name: string;
-      messages: { id: number; text: string; sender: string }[];
-    }>
-  >;
+  chatHistory: Chat[];
+  activeChat: Chat;
+  setActiveChat: React.Dispatch<React.SetStateAction<Chat>>;
   handleNewChat: () => void;
 }
 
@@ -55,6 +41,21 @@ export default function ChatHistory({
   handleNewChat,
 }: ChatHistoryProps) {
   const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsOpen(window.innerWidth > 768); // 768px is a common breakpoint for mobile devices
+    };
+
+    // Set initial state
+    checkScreenSize();
+
+    // Add event listener
+    window.addEventListener("resize", checkScreenSize);
+
+    // Clean up
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   // Toggles sidebar visibility
   const toggleSidebar = () => setIsOpen(!isOpen);
