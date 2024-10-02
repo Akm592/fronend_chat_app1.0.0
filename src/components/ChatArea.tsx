@@ -1,5 +1,13 @@
 import React, { useState, useRef } from "react";
-import { Send, Settings, LogOut, ChevronDown, Paperclip } from "lucide-react";
+import {
+  Send,
+  Settings,
+  LogOut,
+  ChevronDown,
+  Paperclip,
+  Share,
+  Bot,
+} from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   DropdownMenu,
@@ -17,6 +25,7 @@ import {
 } from "./ui/tooltip";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
+import SuggestionButtons from "./SuggestionButtons";
 
 // Props for ChatArea component
 interface ChatAreaProps {
@@ -41,12 +50,12 @@ interface Message {
 const ChatMessage = ({ message }: { message: Message }) => (
   <div
     className={`flex ${
-      message.sender === "user" ? "justify-end" : "justify-start"
+      message.sender === "user" ? "justify-end p-10" : "justify-start p-10"
     } mb-4`}
   >
     <div
       className={`rounded-xl p-3 max-w-[80%] ${
-        message.sender === "user" ? "bg-[#2A2A2A]" : "bg-[#3A3A3A]"
+        message.sender === "user" ? "bg-[#2A2A2A] ml-2 " : "bg-[#3A3A3A] mr-2"
       }`}
     >
       <p className="text-white">{message.text}</p>
@@ -61,14 +70,15 @@ export default function ChatArea({
   setMessage,
   handleSendMessage,
 }: ChatAreaProps) {
-  const [isLoading, setIsLoading] = useState(false); // Loading state for sending message
-  const [selectedFile, setSelectedFile] = useState<File | null>(null); // File attachment state
-  const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Selected AI model state
-  const [tempChatEnabled, setTempChatEnabled] = useState(false); // Toggle temporary chat
-  const scrollAreaRef = useRef<HTMLDivElement>(null); // Ref for scroll area
-  const fileInputRef = useRef<HTMLInputElement>(null); // Ref for file input
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedModel, setSelectedModel] = useState("ChatGPT");
+  const [tempChatEnabled, setTempChatEnabled] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handles sending message with loading state
+  const isNewChat = activeChat.messages.length === 0;
+
   const handleSendMessageWithLoading = () => {
     if (message.trim() !== "" || selectedFile) {
       setIsLoading(true);
@@ -79,18 +89,21 @@ export default function ChatArea({
     }
   };
 
-  // Handles file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
 
-  // Triggers file upload input
   const handleFileUploadClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setMessage(suggestion);
+    handleSendMessageWithLoading();
   };
 
   return (
@@ -141,40 +154,66 @@ export default function ChatArea({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="w-8 h-8 rounded-full bg-[#3A3A3A] flex items-center justify-center text-white cursor-pointer">
-              A
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-[#2A2A2A] text-white border-[#3A3A3A] rounded-xl">
-            <DropdownMenuLabel>My GPTs</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Customize ChatGPT</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Upgrade Plan</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="mr-2 rounded-full border-2 border-gray-700 px-4 py-2 transition duration-300 hover:bg-[#3A3A3A]"
+                >
+                  <Share className="w-5 h-5 text-gray-400 mr-2" /> Share
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Share chat</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-8 h-8 rounded-full bg-[#3A3A3A] flex items-center justify-center text-white cursor-pointer">
+                A
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 bg-[#2A2A2A] text-white border-[#3A3A3A] rounded-xl">
+              <DropdownMenuLabel>My GPTs</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Customize ChatGPT</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Upgrade Plan</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </header>
 
       {/* Chat scroll area */}
-      <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
-        {activeChat.messages.map((msg) => (
-          <ChatMessage key={msg.id} message={msg} />
-        ))}
+      {/* Chat scroll area */}
+      <ScrollArea className="flex-1" ref={scrollAreaRef}>
+        {isNewChat ? (
+          <main className="flex-1 p-6 flex flex-col items-center justify-center mt-32">
+            <Bot className="w-16 h-16 text-gray-400 mb-10" />
+            <SuggestionButtons handleSuggestionClick={handleSuggestionClick} />
+          </main>
+        ) : (
+          activeChat.messages.map((msg) => (
+            <ChatMessage key={msg.id} message={msg} />
+          ))
+        )}
       </ScrollArea>
 
       {/* Footer with input and send button */}
@@ -200,7 +239,6 @@ export default function ChatArea({
             onChange={handleFileChange}
             className="hidden"
           />
-          {/* Tooltip for file upload */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -218,7 +256,6 @@ export default function ChatArea({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-          {/* Send button with loading animation */}
           <button
             onClick={handleSendMessageWithLoading}
             className="absolute right-3 top-1/2 transform -translate-y-1/2"

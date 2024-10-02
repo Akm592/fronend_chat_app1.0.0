@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import ChatHistory from "./ChatHistory";
 import ChatArea from "./ChatArea";
@@ -15,11 +16,15 @@ export function FinancialAssistant() {
     handleNewChat,
   } = useChatLogic();
 
+  // Effect to create a new chat when the component mounts
+  useEffect(() => {
+    handleNewChat();
+  }, []);
+
   return (
     <div className="flex h-screen bg-[#171717] text-white overflow-hidden">
       <AnimatePresence>
         {/* Render chat history with current chat state */}
-
         <ChatHistory
           chatHistory={chatHistory}
           activeChat={activeChat}
@@ -29,14 +34,14 @@ export function FinancialAssistant() {
       </AnimatePresence>
 
       {/* Render chat area with message input and send functionality */}
-      <div className="h-screen w-full">
-      <ChatArea
-        activeChat={activeChat}
-        message={message}
-        setMessage={setMessage}
-        handleSendMessage={handleSendMessage}
-      />
-      </div>  
+      <div className="flex-1 h-screen overflow-hidden">
+        <ChatArea
+          activeChat={activeChat}
+          message={message}
+          setMessage={setMessage}
+          handleSendMessage={handleSendMessage}
+        />
+      </div>
     </div>
   );
 }

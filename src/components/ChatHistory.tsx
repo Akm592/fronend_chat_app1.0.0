@@ -61,7 +61,7 @@ export default function ChatHistory({
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-visible">
       <div className="relative">
         {/* Button to toggle the chat sidebar */}
         <Button
@@ -103,8 +103,59 @@ export default function ChatHistory({
                   <SquarePen size={20} />
                 </Button>
               </div>
+              {/* New ChatGPT section */}
+              <div className="mb-4 px-4">
+                <h2 className="text-lg font-semibold mb-2 text-white">
+                  ChatGPT
+                </h2>
+                <div className="flex items-center bg-[#2A2A2A] rounded-full p-1 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center mr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-4 h-4"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                  </div>
+                  <span className="text-white">Presentation and Slid...</span>
+                </div>
+                <div className="flex items-center bg-[#2A2A2A] rounded-full p-1 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center mr-2">
+                    <span className="text-xs font-bold">TS</span>
+                  </div>
+                  <span className="text-white">Typescript</span>
+                </div>
+                <div className="flex items-center bg-[#2A2A2A] rounded-full p-1">
+                  <div className="w-6 h-6 rounded-full bg-[#3A3A3A] flex items-center justify-center mr-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="w-4 h-4"
+                    >
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                  <span className="text-white">Explore GPTs</span>
+                </div>
+              </div>
               {/* Scrollable area showing chat history */}
-              <ScrollArea className="flex-grow px-4">
+              <div className="text-white px-4 mb-2">Today</div>
+
+              <ScrollArea className="flex-grow px-4 ">
                 <div className="space-y-2">
                   {chatHistory.map((chat) => (
                     <ChatHistoryItem
